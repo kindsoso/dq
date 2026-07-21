@@ -1,0 +1,2615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>山东公办大专·电气自动化技术 志愿决策地图</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, "Microsoft YaHei", sans-serif; background: #f5f7fa; }
+.header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+  color: #fff; padding: 24px 40px; text-align: center;
+}
+.header h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.header .sub { font-size: 14px; opacity: .85; }
+.student-bar {
+  background: #fff3e0; border-bottom: 2px solid #ffb74d; padding: 10px 40px;
+  display: flex; gap: 24px; flex-wrap: wrap; align-items: center; font-size: 14px;
+}
+.student-bar .label { color: #e65100; font-weight: 600; }
+.student-bar .badge { background: #e65100; color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 13px; }
+.container { max-width: 1500px; margin: 0 auto; padding: 16px; display: flex; gap: 16px; }
+#map { flex: 1; height: 700px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+#detail { width: 480px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 16px; overflow-y: auto; max-height: 700px; }
+#detail .city-hdr { font-size: 20px; font-weight: 700; color: #1a3a5c; margin-bottom: 4px; }
+#detail .city-sub { color: #666; font-size: 13px; margin-bottom: 12px; }
+.school-card {
+  border: 1px solid #e8ecf0; border-radius: 10px; padding: 14px; margin-bottom: 10px;
+  transition: box-shadow .2s; position: relative;
+}
+.school-card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.12); }
+.level-badge {
+  position: absolute; top: -1px; right: -1px;
+  padding: 4px 14px; border-radius: 0 10px 0 10px;
+  font-weight: 700; font-size: 14px; color: #fff; letter-spacing: 1px;
+}
+.school-card .sc-name { font-weight: 600; color: #1a3a5c; font-size: 15px; padding-right: 60px; }
+.school-card .sc-code { color: #999; font-size: 12px; margin-left: 6px; }
+.school-card .sc-tags { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; display: inline-block; white-space: nowrap; }
+.tag-plan { background: #e8f4e8; color: #2e7d32; }
+.tag-pred { background: #e3f2fd; color: #1565c0; }
+.tag-fee { background: #fce4ec; color: #c62828; }
+.tag-subject { background: #f3e5f5; color: #7b1fa2; }
+.tag-new { background: #fff8e1; color: #f57f17; }
+.sc-table { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 12px; }
+.sc-table th { background: #f5f7fa; padding: 3px 6px; text-align: center; font-weight: 500; color: #666; border: 1px solid #e8ecf0; }
+.sc-table td { padding: 3px 6px; text-align: center; border: 1px solid #e8ecf0; color: #333; }
+.sc-table td.muted { color: #bbb; }
+.sc-note { font-size: 11px; color: #e65100; margin-top: 4px; }
+.no-data { color: #bbb; text-align: center; padding: 40px 0; font-size: 14px; }
+.legend-bar { padding: 0 16px 8px; font-size: 13px; color: #555; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.legend-bar .dot { width: 14px; height: 14px; border-radius: 4px; display: inline-block; vertical-align: middle; margin-right: 3px; }
+.legend-bar .item { display: inline-flex; align-items: center; gap: 3px; }
+.legend-bar .total { margin-left: auto; font-weight: 600; }
+@media (max-width:960px) { .container { flex-direction: column; } #detail { width: 100%; max-height: none; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>⚡ 山东公办大专 · 电气自动化技术 志愿决策地图</h1>
+  <div class="sub">基于2026年山东省专科投档数据 · 假设考生400分/位次450,507</div>
+</div>
+
+<div class="student-bar">
+  <span class="label">🎯 考生画像：</span>
+  <span>山东 理科(理化生)</span>
+  <span class="badge">400分</span>
+  <span>位次 450,507</span>
+  <span class="label">|</span>
+  <span>目标专业：电气自动化技术</span>
+  <span>办学性质：公办</span>
+  <span style="margin-left:auto;font-size:12px;color:#999;">地图颜色深浅 = 招生计划总数</span>
+</div>
+
+<div class="legend-bar">
+  <span style="color:#666;font-weight:500">地图颜色 = 计划招生人数：</span>
+  <span class="item"><span class="dot" style="background:#072f1a"></span>≥900人</span>
+  <span class="item"><span class="dot" style="background:#0d4f2b"></span>600~899</span>
+  <span class="item"><span class="dot" style="background:#1a6b3c"></span>400~599</span>
+  <span class="item"><span class="dot" style="background:#2d8f52"></span>300~399</span>
+  <span class="item"><span class="dot" style="background:#52b576"></span>200~299</span>
+  <span class="item"><span class="dot" style="background:#8fd4a8"></span>100~199</span>
+  <span class="item"><span class="dot" style="background:#ddd"></span>100以下</span>
+  <span class="total">共 <strong id="totalS">0</strong> 所 · 计划招生 <strong id="totalP">0</strong> 人</span>
+</div>
+
+<div class="container">
+  <div id="map"></div>
+  <div id="detail">
+    <div class="city-hdr" id="cityName">📍 山东省</div>
+    <div class="city-sub" id="cityStat">鼠标悬停地图上的地市查看详情</div>
+    <div id="schoolList"><div class="no-data">👆 鼠标移入或点击地图上的地市</div></div>
+  </div>
+</div>
+
+<script>
+// ============ 全省数据 (自动生成) ============
+const DATA = {
+  "student_rank": 450507,
+  "student_score": 400,
+  "cities": {
+    "东营": [
+      {
+        "name": "东营科技职业学院",
+        "code": "D007",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 90,
+        "pred": 399,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 435240,
+          "24": 474055,
+          "23": 430737
+        },
+        "eq_scores": {
+          "25": 394,
+          "24": 369,
+          "23": 388
+        },
+        "enroll": {
+          "25": 106,
+          "24": 107,
+          "23": 20
+        },
+        "score_points": {
+          "25": 394,
+          "24": 369,
+          "23": 388
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "山东胜利职业学院",
+        "code": "D316",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 92,
+        "pred": 402,
+        "fee": 5700,
+        "note": "",
+        "scores": {
+          "25": 431261,
+          "24": 455002,
+          "23": 440462
+        },
+        "eq_scores": {
+          "25": 396,
+          "24": 379,
+          "23": 383
+        },
+        "enroll": {
+          "25": 30,
+          "24": 175,
+          "23": 30
+        },
+        "score_points": {
+          "25": 396,
+          "24": 379,
+          "23": 383
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      }
+    ],
+    "威海": [
+      {
+        "name": "威海职业学院",
+        "code": "C326",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 81,
+        "pred": 452,
+        "fee": 6000,
+        "note": "",
+        "scores": {
+          "25": 320226,
+          "24": 332433,
+          "23": 326779
+        },
+        "eq_scores": {
+          "25": 446,
+          "24": 438,
+          "23": 435
+        },
+        "enroll": {
+          "25": 37,
+          "24": 104,
+          "23": 68
+        },
+        "score_points": {
+          "25": 446,
+          "24": 438,
+          "23": 435
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "威海职业学院",
+        "code": "C326",
+        "full": "电气自动化技术(高职院校专项计划)",
+        "subject": "不限",
+        "plan": 2,
+        "pred": 409,
+        "fee": 6000,
+        "note": "(高职院校专项计划)",
+        "scores": {
+          "25": 426548,
+          "24": 389772,
+          "23": 567407
+        },
+        "eq_scores": {
+          "25": 398,
+          "24": 411,
+          "23": 315
+        },
+        "enroll": {
+          "25": 1,
+          "24": 1,
+          "23": 1
+        },
+        "score_points": {
+          "25": 398,
+          "24": 411,
+          "23": 315
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "威海海洋职业学院",
+        "code": "E507",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 86,
+        "pred": 417,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 406420,
+          "24": 413795,
+          "23": 408986
+        },
+        "eq_scores": {
+          "25": 408,
+          "24": 400,
+          "23": 398
+        },
+        "enroll": {
+          "25": 120,
+          "24": 140,
+          "23": 75
+        },
+        "score_points": {
+          "25": 408,
+          "24": 400,
+          "23": 398
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "威海职业学院",
+        "code": "C326",
+        "full": "电气自动化技术(中外合作办学)(与俄罗斯阿尔泰波尔祖诺夫国立技术大学合作)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 398,
+        "fee": 12000,
+        "note": "(中外合作办学)(与俄罗斯阿尔泰波尔祖诺夫国立技术大学合作)",
+        "scores": {
+          "25": 449076,
+          "24": 455696,
+          "23": 469610
+        },
+        "eq_scores": {
+          "25": 387,
+          "24": 379,
+          "23": 369
+        },
+        "enroll": {
+          "25": 40,
+          "24": 40,
+          "23": 40
+        },
+        "score_points": {
+          "25": 387,
+          "24": 379,
+          "23": 369
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      }
+    ],
+    "德州": [
+      {
+        "name": "德州职业技术学院",
+        "code": "D389",
+        "full": "电气自动化技术(高职技师合作培养，在德州职业技术学院就读)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 402,
+        "fee": 6325,
+        "note": "(高职技师合作培养，在德州职业技术学院就读)",
+        "scores": {
+          "25": 441090,
+          "24": 439664,
+          "23": 436053
+        },
+        "eq_scores": {
+          "25": 391,
+          "24": 387,
+          "23": 386
+        },
+        "enroll": {
+          "25": 160,
+          "24": 70,
+          "23": 20
+        },
+        "score_points": {
+          "25": 391,
+          "24": 387,
+          "23": 386
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "德州职业技术学院",
+        "code": "D389",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 160,
+        "pred": 402,
+        "fee": 6325,
+        "note": "",
+        "scores": {
+          "25": 441090,
+          "24": 439664,
+          "23": 436053
+        },
+        "eq_scores": {
+          "25": 391,
+          "24": 387,
+          "23": 386
+        },
+        "enroll": {
+          "25": 160,
+          "24": 70,
+          "23": 20
+        },
+        "score_points": {
+          "25": 391,
+          "24": 387,
+          "23": 386
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      }
+    ],
+    "日照": [
+      {
+        "name": "日照职业技术大学",
+        "code": "C062",
+        "full": "电气自动化技术(天台山校区就读。根据行业要求，色盲、色弱考生谨慎报考)",
+        "subject": "不限",
+        "plan": 12,
+        "pred": 464,
+        "fee": 5500,
+        "note": "(天台山校区就读。根据行业要求，色盲、色弱考生谨慎报考)",
+        "scores": {
+          "25": 296992,
+          "24": 298588,
+          "23": 298862
+        },
+        "eq_scores": {
+          "25": 456,
+          "24": 452,
+          "23": 447
+        },
+        "enroll": {
+          "25": 40,
+          "24": 50,
+          "23": 30
+        },
+        "score_points": {
+          "25": 456,
+          "24": 452,
+          "23": 447
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东水利职业学院",
+        "code": "C946",
+        "full": "电气自动化技术",
+        "subject": "物理",
+        "plan": 81,
+        "pred": 434,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 359856,
+          "24": 358854,
+          "23": 349241
+        },
+        "eq_scores": {
+          "25": 429,
+          "24": 426,
+          "23": 425
+        },
+        "enroll": {
+          "25": 50,
+          "24": 80,
+          "23": 30
+        },
+        "score_points": {
+          "25": 429,
+          "24": 426,
+          "23": 425
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      }
+    ],
+    "枣庄": [
+      {
+        "name": "枣庄科技职业学院",
+        "code": "D390",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 37,
+        "pred": 405,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 426720,
+          "24": 438865,
+          "23": 433742
+        },
+        "eq_scores": {
+          "25": 398,
+          "24": 387,
+          "23": 387
+        },
+        "enroll": {
+          "25": 17,
+          "24": 53,
+          "23": 10
+        },
+        "score_points": {
+          "25": 398,
+          "24": 387,
+          "23": 387
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "枣庄职业学院",
+        "code": "E196",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 74,
+        "pred": 411,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 420801,
+          "24": 422062,
+          "23": 411127
+        },
+        "eq_scores": {
+          "25": 401,
+          "24": 396,
+          "23": 397
+        },
+        "enroll": {
+          "25": 90,
+          "24": 90,
+          "23": 18
+        },
+        "score_points": {
+          "25": 401,
+          "24": 396,
+          "23": 397
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "枣庄科技职业学院",
+        "code": "D390",
+        "full": "电气自动化技术(中外合作办学)(与俄罗斯阿穆尔共青城国立大学合作)",
+        "subject": "不限",
+        "plan": 6,
+        "pred": 351,
+        "fee": 16500,
+        "note": "(中外合作办学)(与俄罗斯阿穆尔共青城国立大学合作)",
+        "scores": {
+          "25": 542361,
+          "24": 548805,
+          "23": 577712
+        },
+        "eq_scores": {
+          "25": 337,
+          "24": 328,
+          "23": 308
+        },
+        "enroll": {
+          "25": 25,
+          "24": 50,
+          "23": 60
+        },
+        "score_points": {
+          "25": 337,
+          "24": 328,
+          "23": 308
+        },
+        "level": "垫底",
+        "level_color": "#7b1fa2",
+        "is_new": false
+      }
+    ],
+    "泰安": [
+      {
+        "name": "泰山职业技术学院",
+        "code": "D861",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 48,
+        "pred": 416,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 402038,
+          "24": 410377,
+          "23": 399173
+        },
+        "eq_scores": {
+          "25": 410,
+          "24": 401,
+          "23": 403
+        },
+        "enroll": {
+          "25": 25,
+          "24": 77,
+          "23": 56
+        },
+        "score_points": {
+          "25": 410,
+          "24": 401,
+          "23": 403
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "泰山职业技术学院",
+        "code": "D861",
+        "full": "电气自动化技术(石横特钢现场工程师)",
+        "subject": "不限",
+        "plan": 34,
+        "pred": 415,
+        "fee": 5750,
+        "note": "(石横特钢现场工程师)",
+        "scores": {
+          "25": 411962,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 405,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 35,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 405,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "泰山职业技术学院",
+        "code": "D861",
+        "full": "电气自动化技术(潍柴动力工匠班)",
+        "subject": "不限",
+        "plan": 68,
+        "pred": 421,
+        "fee": 5750,
+        "note": "(潍柴动力工匠班)",
+        "scores": {
+          "25": 391050,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 415,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 35,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 415,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "泰山职业技术学院",
+        "code": "D861",
+        "full": "电气自动化技术(比亚迪工匠班)",
+        "subject": "不限",
+        "plan": 31,
+        "pred": 424,
+        "fee": 5750,
+        "note": "(比亚迪工匠班)",
+        "scores": {
+          "25": 391050,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 415,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 35,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 415,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "泰山职业技术学院",
+        "code": "D861",
+        "full": "电气自动化技术(高职技师合作培养，在泰安技师学院就读)",
+        "subject": "不限",
+        "plan": 83,
+        "pred": 370,
+        "fee": 5750,
+        "note": "(高职技师合作培养，在泰安技师学院就读)",
+        "scores": {
+          "25": 501053,
+          "24": 511622,
+          "23": 548504
+        },
+        "eq_scores": {
+          "25": 361,
+          "24": 349,
+          "23": 327
+        },
+        "enroll": {
+          "25": 74,
+          "24": 45,
+          "23": 67
+        },
+        "score_points": {
+          "25": 361,
+          "24": 349,
+          "23": 327
+        },
+        "level": "保",
+        "level_color": "#1976d2",
+        "is_new": false
+      }
+    ],
+    "济南": [
+      {
+        "name": "山东电子职业技术学院",
+        "code": "D856",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接菏泽学院自动化专业)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 486,
+        "fee": 5500,
+        "note": "(高职3+2贯通培养，衔接菏泽学院自动化专业)",
+        "scores": {
+          "25": 238696,
+          "24": 238602,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 479,
+          "24": 476,
+          "23": null
+        },
+        "enroll": {
+          "25": 40,
+          "24": 40,
+          "23": null
+        },
+        "score_points": {
+          "25": 479,
+          "24": 476,
+          "23": null
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东商业职业技术大学",
+        "code": "A832",
+        "full": "电气自动化技术(彩石、莱芜两校区就读，莱芜校区为主)",
+        "subject": "不限",
+        "plan": 35,
+        "pred": 469,
+        "fee": 6600,
+        "note": "(彩石、莱芜两校区就读，莱芜校区为主)",
+        "scores": {
+          "25": 283079,
+          "24": 274874,
+          "23": 281951
+        },
+        "eq_scores": {
+          "25": 461,
+          "24": 462,
+          "23": 454
+        },
+        "enroll": {
+          "25": 75,
+          "24": 50,
+          "23": 100
+        },
+        "score_points": {
+          "25": 461,
+          "24": 462,
+          "23": 454
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东职业学院",
+        "code": "C328",
+        "full": "电气自动化技术",
+        "subject": "物理",
+        "plan": 89,
+        "pred": 465,
+        "fee": 6600,
+        "note": "",
+        "scores": {
+          "25": 286292,
+          "24": 276675,
+          "23": 266403
+        },
+        "eq_scores": {
+          "25": 460,
+          "24": 461,
+          "23": 460
+        },
+        "enroll": {
+          "25": 66,
+          "24": 77,
+          "23": 22
+        },
+        "score_points": {
+          "25": 460,
+          "24": 461,
+          "23": 460
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "济南职业学院",
+        "code": "D323",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 46,
+        "pred": 464,
+        "fee": 6000,
+        "note": "",
+        "scores": {
+          "25": 296574,
+          "24": 286928,
+          "23": 287046
+        },
+        "eq_scores": {
+          "25": 456,
+          "24": 457,
+          "23": 451
+        },
+        "enroll": {
+          "25": 50,
+          "24": 40,
+          "23": 15
+        },
+        "score_points": {
+          "25": 456,
+          "24": 457,
+          "23": 451
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东电子职业技术学院",
+        "code": "D856",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 23,
+        "pred": 441,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 348998,
+          "24": 351628,
+          "23": 337329
+        },
+        "eq_scores": {
+          "25": 434,
+          "24": 429,
+          "23": 430
+        },
+        "enroll": {
+          "25": 45,
+          "24": 47,
+          "23": 21
+        },
+        "score_points": {
+          "25": 434,
+          "24": 429,
+          "23": 430
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东管理学院",
+        "code": "E438",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 100,
+        "pred": 470,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 279926,
+          "24": 270645,
+          "23": 275053
+        },
+        "eq_scores": {
+          "25": 462,
+          "24": 464,
+          "23": 456
+        },
+        "enroll": {
+          "25": 100,
+          "24": 135,
+          "23": 80
+        },
+        "score_points": {
+          "25": 462,
+          "24": 464,
+          "23": 456
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东商业职业技术大学",
+        "code": "A832",
+        "full": "电气自动化技术(高职院校专项计划)(彩石、莱芜两校区就读，莱芜校区为主)",
+        "subject": "不限",
+        "plan": 5,
+        "pred": 433,
+        "fee": 6600,
+        "note": "(高职院校专项计划)(彩石、莱芜两校区就读，莱芜校区为主)",
+        "scores": {
+          "25": 368310,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 425,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 5,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 425,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东职业学院",
+        "code": "C328",
+        "full": "电气自动化技术(高职院校专项计划)",
+        "subject": "物理",
+        "plan": 5,
+        "pred": 417,
+        "fee": 6600,
+        "note": "(高职院校专项计划)",
+        "scores": {
+          "25": 422854,
+          "24": 369212,
+          "23": 373940
+        },
+        "eq_scores": {
+          "25": 400,
+          "24": 421,
+          "23": 414
+        },
+        "enroll": {
+          "25": 11,
+          "24": 5,
+          "23": 3
+        },
+        "score_points": {
+          "25": 400,
+          "24": 421,
+          "23": 414
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东劳动职业技术学院",
+        "code": "C329",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 41,
+        "pred": 437,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 360205,
+          "24": 363789,
+          "23": 367037
+        },
+        "eq_scores": {
+          "25": 429,
+          "24": 424,
+          "23": 417
+        },
+        "enroll": {
+          "25": 41,
+          "24": 15,
+          "23": 42
+        },
+        "score_points": {
+          "25": 429,
+          "24": 424,
+          "23": 417
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "济南工程职业技术学院",
+        "code": "D855",
+        "full": "电气自动化技术(绣源河校区)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 438,
+        "fee": 5750,
+        "note": "(绣源河校区)",
+        "scores": {
+          "25": 356051,
+          "24": 357429,
+          "23": 355800
+        },
+        "eq_scores": {
+          "25": 431,
+          "24": 426,
+          "23": 422
+        },
+        "enroll": {
+          "25": 45,
+          "24": 30,
+          "23": 30
+        },
+        "score_points": {
+          "25": 431,
+          "24": 426,
+          "23": 422
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      }
+    ],
+    "济宁": [
+      {
+        "name": "济宁职业技术学院",
+        "code": "C335",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 79,
+        "pred": 422,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 387028,
+          "24": 397160,
+          "23": 380425
+        },
+        "eq_scores": {
+          "25": 417,
+          "24": 408,
+          "23": 411
+        },
+        "enroll": {
+          "25": 55,
+          "24": 89,
+          "23": 30
+        },
+        "score_points": {
+          "25": 417,
+          "24": 408,
+          "23": 411
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东理工职业学院",
+        "code": "E242",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 79,
+        "pred": 425,
+        "fee": 6000,
+        "note": "",
+        "scores": {
+          "25": 379849,
+          "24": 387776,
+          "23": 395865
+        },
+        "eq_scores": {
+          "25": 420,
+          "24": 412,
+          "23": 405
+        },
+        "enroll": {
+          "25": 55,
+          "24": 65,
+          "23": 45
+        },
+        "score_points": {
+          "25": 420,
+          "24": 412,
+          "23": 405
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      }
+    ],
+    "淄博": [
+      {
+        "name": "淄博职业技术大学",
+        "code": "D009",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接德州学院电气工程及其自动化专业)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 500,
+        "fee": 6600,
+        "note": "(高职3+2贯通培养，衔接德州学院电气工程及其自动化专业)",
+        "scores": {
+          "25": 202699,
+          "24": 205302,
+          "23": 244624
+        },
+        "eq_scores": {
+          "25": 493,
+          "24": 490,
+          "23": 469
+        },
+        "enroll": {
+          "25": 40,
+          "24": 40,
+          "23": 80
+        },
+        "score_points": {
+          "25": 493,
+          "24": 490,
+          "23": 469
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东轻工职业学院",
+        "code": "E079",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接山东农业工程学院电气工程及其自动化专业)",
+        "subject": "不限",
+        "plan": 60,
+        "pred": 485,
+        "fee": 5750,
+        "note": "(高职3+2贯通培养，衔接山东农业工程学院电气工程及其自动化专业)",
+        "scores": {
+          "25": 241351,
+          "24": 241831,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 478,
+          "24": 475,
+          "23": null
+        },
+        "enroll": {
+          "25": 60,
+          "24": 60,
+          "23": null
+        },
+        "score_points": {
+          "25": 478,
+          "24": 475,
+          "23": null
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "淄博职业技术大学",
+        "code": "D009",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 120,
+        "pred": 466,
+        "fee": 6600,
+        "note": "",
+        "scores": {
+          "25": 283236,
+          "24": 286503,
+          "23": 286971
+        },
+        "eq_scores": {
+          "25": 461,
+          "24": 457,
+          "23": 451
+        },
+        "enroll": {
+          "25": 85,
+          "24": 130,
+          "23": 60
+        },
+        "score_points": {
+          "25": 461,
+          "24": 457,
+          "23": 451
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东工业职业学院",
+        "code": "D318",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 160,
+        "pred": 425,
+        "fee": 6322,
+        "note": "",
+        "scores": {
+          "25": 381176,
+          "24": 386123,
+          "23": 376107
+        },
+        "eq_scores": {
+          "25": 420,
+          "24": 413,
+          "23": 413
+        },
+        "enroll": {
+          "25": 110,
+          "24": 134,
+          "23": 65
+        },
+        "score_points": {
+          "25": 420,
+          "24": 413,
+          "23": 413
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东工业职业学院",
+        "code": "D318",
+        "full": "电气自动化技术(歌尔现场工程师班)",
+        "subject": "不限",
+        "plan": 28,
+        "pred": 428,
+        "fee": 6322,
+        "note": "(歌尔现场工程师班)",
+        "scores": {
+          "25": 374241,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 423,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 20,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 423,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东化工职业学院",
+        "code": "D319",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 20,
+        "pred": 419,
+        "fee": 8000,
+        "note": "",
+        "scores": {
+          "25": 401770,
+          "24": 399790,
+          "23": 382467
+        },
+        "eq_scores": {
+          "25": 410,
+          "24": 407,
+          "23": 410
+        },
+        "enroll": {
+          "25": 80,
+          "24": 120,
+          "23": 55
+        },
+        "score_points": {
+          "25": 410,
+          "24": 407,
+          "23": 410
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "淄博师范高等专科学校",
+        "code": "D777",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 125,
+        "pred": 413,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 409283,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 407,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 70,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 407,
+          "24": null,
+          "23": null
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东铝业职业学院",
+        "code": "D859",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 375,
+        "pred": 394,
+        "fee": 8000,
+        "note": "",
+        "scores": {
+          "25": 451022,
+          "24": 473571,
+          "23": 463450
+        },
+        "eq_scores": {
+          "25": 386,
+          "24": 370,
+          "23": 372
+        },
+        "enroll": {
+          "25": 69,
+          "24": 171,
+          "23": 104
+        },
+        "score_points": {
+          "25": 386,
+          "24": 370,
+          "23": 372
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "山东轻工职业学院",
+        "code": "E079",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 401,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 439343,
+          "24": null,
+          "23": 458479
+        },
+        "eq_scores": {
+          "25": 392,
+          "24": null,
+          "23": 375
+        },
+        "enroll": {
+          "25": 80,
+          "24": null,
+          "23": 41
+        },
+        "score_points": {
+          "25": 392,
+          "24": null,
+          "23": 375
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "淄博职业技术大学",
+        "code": "D009",
+        "full": "电气自动化技术(高职院校专项计划)",
+        "subject": "不限",
+        "plan": 10,
+        "pred": 450,
+        "fee": 6600,
+        "note": "(高职院校专项计划)",
+        "scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "level": "新(参考预测)",
+        "level_color": "#f57f17",
+        "is_new": true
+      }
+    ],
+    "滨州": [
+      {
+        "name": "滨州职业技术大学",
+        "code": "C818",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 147,
+        "pred": 435,
+        "fee": 6600,
+        "note": "",
+        "scores": {
+          "25": 357739,
+          "24": 352297,
+          "23": 343197
+        },
+        "eq_scores": {
+          "25": 430,
+          "24": 429,
+          "23": 428
+        },
+        "enroll": {
+          "25": 105,
+          "24": 40,
+          "23": 50
+        },
+        "score_points": {
+          "25": 430,
+          "24": 429,
+          "23": 428
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      }
+    ],
+    "潍坊": [
+      {
+        "name": "潍坊学院",
+        "code": "B067",
+        "full": "电气自动化技术",
+        "subject": "物理",
+        "plan": 220,
+        "pred": 462,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 295668,
+          "24": 279030,
+          "23": 274878
+        },
+        "eq_scores": {
+          "25": 456,
+          "24": 460,
+          "23": 456
+        },
+        "enroll": {
+          "25": 110,
+          "24": 50,
+          "23": 50
+        },
+        "score_points": {
+          "25": 456,
+          "24": 460,
+          "23": 456
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "潍坊职业学院",
+        "code": "C391",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 446,
+        "fee": 6600,
+        "note": "",
+        "scores": {
+          "25": 337574,
+          "24": 341201,
+          "23": 332886
+        },
+        "eq_scores": {
+          "25": 439,
+          "24": 434,
+          "23": 432
+        },
+        "enroll": {
+          "25": 60,
+          "24": 60,
+          "23": 40
+        },
+        "score_points": {
+          "25": 439,
+          "24": 434,
+          "23": 432
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东科技职业大学",
+        "code": "C819",
+        "full": "电气自动化技术(苏州汇川技术订单班)",
+        "subject": "不限",
+        "plan": 35,
+        "pred": 456,
+        "fee": 6325,
+        "note": "(苏州汇川技术订单班)",
+        "scores": {
+          "25": 316525,
+          "24": 320286,
+          "23": 329859
+        },
+        "eq_scores": {
+          "25": 448,
+          "24": 443,
+          "23": 434
+        },
+        "enroll": {
+          "25": 40,
+          "24": 30,
+          "23": 42
+        },
+        "score_points": {
+          "25": 448,
+          "24": 443,
+          "23": 434
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东科技职业大学",
+        "code": "C819",
+        "full": "电气自动化技术(现场工程师)(歌尔股份有限公司现场工程师)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 456,
+        "fee": 6325,
+        "note": "(现场工程师)(歌尔股份有限公司现场工程师)",
+        "scores": {
+          "25": 316525,
+          "24": 320286,
+          "23": 329859
+        },
+        "eq_scores": {
+          "25": 448,
+          "24": 443,
+          "23": 434
+        },
+        "enroll": {
+          "25": 40,
+          "24": 30,
+          "23": 42
+        },
+        "score_points": {
+          "25": 448,
+          "24": 443,
+          "23": 434
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "山东信息职业技术学院",
+        "code": "D012",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 30,
+        "pred": 419,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 402300,
+          "24": 401275,
+          "23": 387580
+        },
+        "eq_scores": {
+          "25": 410,
+          "24": 406,
+          "23": 408
+        },
+        "enroll": {
+          "25": 81,
+          "24": 90,
+          "23": 41
+        },
+        "score_points": {
+          "25": 410,
+          "24": 406,
+          "23": 408
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东信息职业技术学院",
+        "code": "D012",
+        "full": "电气自动化技术(歌尔工匠班)",
+        "subject": "不限",
+        "plan": 84,
+        "pred": 416,
+        "fee": 5500,
+        "note": "(歌尔工匠班)",
+        "scores": {
+          "25": 402300,
+          "24": 401275,
+          "23": 387580
+        },
+        "eq_scores": {
+          "25": 410,
+          "24": 406,
+          "23": 408
+        },
+        "enroll": {
+          "25": 81,
+          "24": 90,
+          "23": 41
+        },
+        "score_points": {
+          "25": 410,
+          "24": 406,
+          "23": 408
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东经贸职业学院",
+        "code": "D317",
+        "full": "电气自动化技术(歌尔匠造班；色盲考生不予录取)",
+        "subject": "不限",
+        "plan": 96,
+        "pred": 418,
+        "fee": 5000,
+        "note": "(歌尔匠造班；色盲考生不予录取)",
+        "scores": {
+          "25": 397260,
+          "24": 397227,
+          "23": 384027
+        },
+        "eq_scores": {
+          "25": 412,
+          "24": 408,
+          "23": 410
+        },
+        "enroll": {
+          "25": 71,
+          "24": 40,
+          "23": 16
+        },
+        "score_points": {
+          "25": 412,
+          "24": 408,
+          "23": 410
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "潍坊职业学院",
+        "code": "C391",
+        "full": "电气自动化技术(中外合作办学)(与俄罗斯伏尔加格勒国立技术大学合作)",
+        "subject": "不限",
+        "plan": 56,
+        "pred": 385,
+        "fee": 16000,
+        "note": "(中外合作办学)(与俄罗斯伏尔加格勒国立技术大学合作)",
+        "scores": {
+          "25": 476368,
+          "24": 481677,
+          "23": 509215
+        },
+        "eq_scores": {
+          "25": 374,
+          "24": 365,
+          "23": 349
+        },
+        "enroll": {
+          "25": 80,
+          "24": 50,
+          "23": 30
+        },
+        "score_points": {
+          "25": 374,
+          "24": 365,
+          "23": 349
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "山东信息职业技术学院",
+        "code": "D012",
+        "full": "电气自动化技术(中外合作办学)(与匈牙利米什科尔茨大学合作)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 355,
+        "fee": 15800,
+        "note": "(中外合作办学)(与匈牙利米什科尔茨大学合作)",
+        "scores": {
+          "25": 536349,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 341,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 40,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 341,
+          "24": null,
+          "23": null
+        },
+        "level": "保",
+        "level_color": "#1976d2",
+        "is_new": false
+      }
+    ],
+    "烟台": [
+      {
+        "name": "烟台职业学院",
+        "code": "C396",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接山东工商学院自动化专业)",
+        "subject": "不限",
+        "plan": 30,
+        "pred": 494,
+        "fee": 5750,
+        "note": "(高职3+2贯通培养，衔接山东工商学院自动化专业)",
+        "scores": {
+          "25": 218672,
+          "24": 229366,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 487,
+          "24": 480,
+          "23": null
+        },
+        "enroll": {
+          "25": 30,
+          "24": 30,
+          "23": null
+        },
+        "score_points": {
+          "25": 487,
+          "24": 480,
+          "23": null
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "烟台汽车工程职业学院",
+        "code": "E081",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接临沂大学电气工程及其自动化专业)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 497,
+        "fee": 5500,
+        "note": "(高职3+2贯通培养，衔接临沂大学电气工程及其自动化专业)",
+        "scores": {
+          "25": 210803,
+          "24": 215035,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 490,
+          "24": 486,
+          "23": null
+        },
+        "enroll": {
+          "25": 40,
+          "24": 40,
+          "23": null
+        },
+        "score_points": {
+          "25": 490,
+          "24": 486,
+          "23": null
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "烟台职业学院",
+        "code": "C396",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 59,
+        "pred": 442,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 347268,
+          "24": 351861,
+          "23": 336040
+        },
+        "eq_scores": {
+          "25": 435,
+          "24": 429,
+          "23": 431
+        },
+        "enroll": {
+          "25": 77,
+          "24": 162,
+          "23": 70
+        },
+        "score_points": {
+          "25": 435,
+          "24": 429,
+          "23": 431
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "烟台工程职业技术学院",
+        "code": "D355",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 82,
+        "pred": 406,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 424742,
+          "24": 432973,
+          "23": 438741
+        },
+        "eq_scores": {
+          "25": 399,
+          "24": 390,
+          "23": 384
+        },
+        "enroll": {
+          "25": 68,
+          "24": 60,
+          "23": 28
+        },
+        "score_points": {
+          "25": 399,
+          "24": 390,
+          "23": 384
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "山东商务职业学院",
+        "code": "E078",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 175,
+        "pred": 435,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 357622,
+          "24": 351125,
+          "23": 330343
+        },
+        "eq_scores": {
+          "25": 430,
+          "24": 429,
+          "23": 433
+        },
+        "enroll": {
+          "25": 120,
+          "24": 140,
+          "23": 80
+        },
+        "score_points": {
+          "25": 430,
+          "24": 429,
+          "23": 433
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "烟台文化旅游职业学院",
+        "code": "E707",
+        "full": "电气自动化技术(高职技师合作培养，在菏泽技师学院就读)",
+        "subject": "不限",
+        "plan": 200,
+        "pred": 382,
+        "fee": 5000,
+        "note": "(高职技师合作培养，在菏泽技师学院就读)",
+        "scores": {
+          "25": 467617,
+          "24": 504107,
+          "23": 505384
+        },
+        "eq_scores": {
+          "25": 378,
+          "24": 353,
+          "23": 351
+        },
+        "enroll": {
+          "25": 58,
+          "24": 173,
+          "23": 80
+        },
+        "score_points": {
+          "25": 378,
+          "24": 353,
+          "23": 351
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "烟台汽车工程职业学院",
+        "code": "E081",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 35,
+        "pred": 394,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 451406,
+          "24": 480043,
+          "23": 482546
+        },
+        "eq_scores": {
+          "25": 386,
+          "24": 366,
+          "23": 363
+        },
+        "enroll": {
+          "25": 37,
+          "24": 90,
+          "23": 60
+        },
+        "score_points": {
+          "25": 386,
+          "24": 366,
+          "23": 363
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "烟台文化旅游职业学院",
+        "code": "E707",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 43,
+        "pred": 384,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 467617,
+          "24": 504107,
+          "23": 505384
+        },
+        "eq_scores": {
+          "25": 378,
+          "24": 353,
+          "23": 351
+        },
+        "enroll": {
+          "25": 58,
+          "24": 173,
+          "23": 80
+        },
+        "score_points": {
+          "25": 378,
+          "24": 353,
+          "23": 351
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "烟台职业学院",
+        "code": "C396",
+        "full": "电气自动化技术(中外合作办学)(韩国岭南大学)",
+        "subject": "不限",
+        "plan": 100,
+        "pred": 366,
+        "fee": 15000,
+        "note": "(中外合作办学)(韩国岭南大学)",
+        "scores": {
+          "25": 514498,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 353,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": 100,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": 353,
+          "24": null,
+          "23": null
+        },
+        "level": "保",
+        "level_color": "#1976d2",
+        "is_new": false
+      }
+    ],
+    "聊城": [
+      {
+        "name": "聊城职业技术学院",
+        "code": "C441",
+        "full": "电气自动化技术(高职技师合作培养，在聊城市技师学院就读)",
+        "subject": "不限",
+        "plan": 100,
+        "pred": 409,
+        "fee": 5000,
+        "note": "(高职技师合作培养，在聊城市技师学院就读)",
+        "scores": {
+          "25": 419177,
+          "24": 432285,
+          "23": 433541
+        },
+        "eq_scores": {
+          "25": 402,
+          "24": 391,
+          "23": 387
+        },
+        "enroll": {
+          "25": 30,
+          "24": 58,
+          "23": 40
+        },
+        "score_points": {
+          "25": 402,
+          "24": 391,
+          "23": 387
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      },
+      {
+        "name": "聊城职业技术学院",
+        "code": "C441",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 31,
+        "pred": 408,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 419177,
+          "24": 432285,
+          "23": 433541
+        },
+        "eq_scores": {
+          "25": 402,
+          "24": 391,
+          "23": 387
+        },
+        "enroll": {
+          "25": 30,
+          "24": 58,
+          "23": 40
+        },
+        "score_points": {
+          "25": 402,
+          "24": 391,
+          "23": 387
+        },
+        "level": "冲",
+        "level_color": "#f57c00",
+        "is_new": false
+      }
+    ],
+    "菏泽": [
+      {
+        "name": "菏泽学院",
+        "code": "A455",
+        "full": "电气自动化技术",
+        "subject": "物理",
+        "plan": 60,
+        "pred": 461,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 305551,
+          "24": 288362,
+          "23": 279615
+        },
+        "eq_scores": {
+          "25": 452,
+          "24": 456,
+          "23": 454
+        },
+        "enroll": {
+          "25": 60,
+          "24": 60,
+          "23": 50
+        },
+        "score_points": {
+          "25": 452,
+          "24": 456,
+          "23": 454
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "菏泽职业学院",
+        "code": "E477",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 167,
+        "pred": 402,
+        "fee": 5500,
+        "note": "",
+        "scores": {
+          "25": 433362,
+          "24": 430693,
+          "23": 441152
+        },
+        "eq_scores": {
+          "25": 395,
+          "24": 391,
+          "23": 383
+        },
+        "enroll": {
+          "25": 163,
+          "24": 50,
+          "23": 20
+        },
+        "score_points": {
+          "25": 395,
+          "24": 391,
+          "23": 383
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      }
+    ],
+    "青岛": [
+      {
+        "name": "青岛港湾职业技术学院",
+        "code": "D014",
+        "full": "电气自动化技术(高职3+2贯通培养，衔接枣庄学院电气工程及其自动化专业)",
+        "subject": "不限",
+        "plan": 40,
+        "pred": 491,
+        "fee": 5750,
+        "note": "(高职3+2贯通培养，衔接枣庄学院电气工程及其自动化专业)",
+        "scores": {
+          "25": 225201,
+          "24": 231683,
+          "23": null
+        },
+        "eq_scores": {
+          "25": 484,
+          "24": 479,
+          "23": null
+        },
+        "enroll": {
+          "25": 40,
+          "24": 40,
+          "23": null
+        },
+        "score_points": {
+          "25": 484,
+          "24": 479,
+          "23": null
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "青岛职业技术学院",
+        "code": "C324",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 35,
+        "pred": 464,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 289785,
+          "24": 290560,
+          "23": 295644
+        },
+        "eq_scores": {
+          "25": 459,
+          "24": 455,
+          "23": 448
+        },
+        "enroll": {
+          "25": 33,
+          "24": 40,
+          "23": 32
+        },
+        "score_points": {
+          "25": 459,
+          "24": 455,
+          "23": 448
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "青岛港湾职业技术学院",
+        "code": "D014",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 38,
+        "pred": 463,
+        "fee": 5750,
+        "note": "",
+        "scores": {
+          "25": 300090,
+          "24": 306431,
+          "23": 302363
+        },
+        "eq_scores": {
+          "25": 454,
+          "24": 449,
+          "23": 445
+        },
+        "enroll": {
+          "25": 45,
+          "24": 54,
+          "23": 33
+        },
+        "score_points": {
+          "25": 454,
+          "24": 449,
+          "23": 445
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "青岛工程职业学院",
+        "code": "E666",
+        "full": "电气自动化技术",
+        "subject": "不限",
+        "plan": 78,
+        "pred": 449,
+        "fee": 5000,
+        "note": "",
+        "scores": {
+          "25": 334271,
+          "24": 333208,
+          "23": 364806
+        },
+        "eq_scores": {
+          "25": 440,
+          "24": 437,
+          "23": 418
+        },
+        "enroll": {
+          "25": 80,
+          "24": 40,
+          "23": 40
+        },
+        "score_points": {
+          "25": 440,
+          "24": 437,
+          "23": 418
+        },
+        "level": "高风险",
+        "level_color": "#d32f2f",
+        "is_new": false
+      },
+      {
+        "name": "青岛职业技术学院",
+        "code": "C324",
+        "full": "电气自动化技术(中外合作办学)(与德国比勒费尔德中等企业应用技术大学合作)",
+        "subject": "不限",
+        "plan": 80,
+        "pred": 398,
+        "fee": 18000,
+        "note": "(中外合作办学)(与德国比勒费尔德中等企业应用技术大学合作)",
+        "scores": {
+          "25": 447257,
+          "24": 464186,
+          "23": 490999
+        },
+        "eq_scores": {
+          "25": 388,
+          "24": 374,
+          "23": 358
+        },
+        "enroll": {
+          "25": 80,
+          "24": 80,
+          "23": 80
+        },
+        "score_points": {
+          "25": 388,
+          "24": 374,
+          "23": 358
+        },
+        "level": "稳",
+        "level_color": "#388e3c",
+        "is_new": false
+      },
+      {
+        "name": "青岛职业技术学院",
+        "code": "C324",
+        "full": "电气自动化技术(高职院校专项计划)",
+        "subject": "不限",
+        "plan": 3,
+        "pred": 422,
+        "fee": 5750,
+        "note": "(高职院校专项计划)",
+        "scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "level": "新(参考预测)",
+        "level_color": "#f57f17",
+        "is_new": true
+      },
+      {
+        "name": "青岛港湾职业技术学院",
+        "code": "D014",
+        "full": "电气自动化技术(高职院校专项计划)",
+        "subject": "不限",
+        "plan": 5,
+        "pred": 430,
+        "fee": 5750,
+        "note": "(高职院校专项计划)",
+        "scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "eq_scores": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "enroll": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "score_points": {
+          "25": null,
+          "24": null,
+          "23": null
+        },
+        "level": "新(参考预测)",
+        "level_color": "#f57f17",
+        "is_new": true
+      }
+    ]
+  }
+};
+
+const STUDENT_RANK = DATA.student_rank;
+const STUDENT_SCORE = DATA.student_score;
+const ALL_CITIES = DATA.cities;
+const CITY_NAMES = Object.keys(ALL_CITIES);
+
+// ===== Stats =====
+let totalS = 0, totalP = 0;
+CITY_NAMES.forEach(c => {
+  ALL_CITIES[c].forEach(s => { totalS++; totalP += s.plan||0; });
+});
+document.getElementById('totalS').textContent = totalS;
+document.getElementById('totalP').textContent = totalP;
+
+// ===== Name mapping =====
+const NAME_MAP = {
+  '济南市':'济南','青岛市':'青岛','淄博市':'淄博','枣庄市':'枣庄','东营市':'东营',
+  '烟台市':'烟台','潍坊市':'潍坊','济宁市':'济宁','泰安市':'泰安','威海市':'威海',
+  '日照市':'日照','临沂市':'临沂','德州市':'德州','聊城市':'聊城','滨州市':'滨州','菏泽市':'菏泽'
+};
+const REV_MAP = {};
+Object.keys(NAME_MAP).forEach(k => { REV_MAP[NAME_MAP[k]] = k; });
+
+// ===== Map color =====
+function getColor(planTotal) {
+  if(!planTotal) return '#ddd';
+  if(planTotal>=200) return '#1a5c3a';
+  if(planTotal>=100) return '#3a8c5a';
+  if(planTotal>=50) return '#6abf8a';
+  return '#a8d8ba';
+}
+
+// ===== Init ECharts =====
+const chart = echarts.init(document.getElementById('map'));
+fetch('https://geo.datav.aliyun.com/areas_v3/bound/370000_full.json')
+  .then(r=>r.json())
+  .then(sd=>{
+    echarts.registerMap('山东', sd);
+    const md = CITY_NAMES.map(c => {
+      const plan = ALL_CITIES[c].reduce((s,sc)=>s+(sc.plan||0),0);
+      return {name: REV_MAP[c]||c, value: plan, label: {color: plan>=600?'#fff':'#333'}};
+    });
+    chart.setOption({
+      tooltip: {
+        trigger: 'item',
+        formatter: p => {
+          const ck = NAME_MAP[p.name]||p.name;
+          const a = ALL_CITIES[ck];
+          if(!a) return '<b>'+p.name+'</b><br/>暂无数据';
+          const cnt=a.length, plan=a.reduce((s,sc)=>s+(sc.plan||0),0);
+          const lvs = {};
+          a.forEach(sc => { lvs[sc.level] = (lvs[sc.level]||0)+1; });
+          let lvStr = Object.keys(lvs).map(k => k+'×'+lvs[k]).join(' ');
+          return `<b style="font-size:15px">${ck}</b><br/>院校数：${cnt}所 · 计划：${plan}人<br/>${lvStr}`;
+        }
+      },
+      visualMap: {
+        show: false,
+        pieces: [
+          { min: 900, color: '#072f1a' },
+          { min: 600, max: 899, color: '#0d4f2b' },
+          { min: 400, max: 599, color: '#1a6b3c' },
+          { min: 300, max: 399, color: '#2d8f52' },
+          { min: 200, max: 299, color: '#52b576' },
+          { min: 100, max: 199, color: '#8fd4a8' },
+          { max: 99, color: '#ddd' }
+        ]
+      },
+      series: [{
+        type:'map', map:'山东', roam:true, selectedMode:false,
+        label: { show:true, fontSize:11 },
+        emphasis: { label:{fontSize:14,fontWeight:'bold',color:'#1a3a5c'}, itemStyle:{areaColor:'#2d6a9f',borderColor:'#fff',borderWidth:2} },
+        itemStyle: { areaColor:'#e8ecf0', borderColor:'#fff', borderWidth:1 },
+        data: md
+      }]
+    });
+    chart.on('mouseover', p => updateDetail(NAME_MAP[p.name]||p.name));
+    chart.on('click', p => updateDetail(NAME_MAP[p.name]||p.name));
+    // Default
+    updateDetail('济南');
+  })
+  .catch(()=>{
+    document.getElementById('map').innerHTML = '<div style="padding:100px;text-align:center;color:#999">地图加载失败，请检查网络或刷新重试</div>';
+  });
+
+// ===== Update detail panel =====
+function updateDetail(ck) {
+  const schools = ALL_CITIES[ck];
+  if(!schools) return;
+  const cnt = schools.length, plan = schools.reduce((s,sc)=>s+(sc.plan||0),0);
+  document.getElementById('cityName').textContent = '📍 '+ck;
+  document.getElementById('cityStat').textContent = cnt+'所院校 · 计划招生 '+plan+' 人';
+
+  const LVL_LABEL = {'高风险':'高风险','冲':'冲','冲(新)':'冲','稳':'稳','稳(新)':'稳','保':'保','保(新)':'保','垫底':'垫底','垫底(新)':'垫底','新(参考预测)':'新专业','待定':'待定','未知':'未知'};
+  const LVL_COL = {'高风险':'#d32f2f','冲':'#f57c00','冲(新)':'#f57c00','稳':'#388e3c','稳(新)':'#388e3c','保':'#1976d2','保(新)':'#1976d2','垫底':'#7b1fa2','垫底(新)':'#7b1fa2','新(参考预测)':'#f57f17','待定':'#999','未知':'#999'};
+
+  let html = '';
+  schools.forEach(sc => {
+    const lvl = sc.level, lc = LVL_COL[lvl]||'#999';
+    const ll = LVL_LABEL[lvl]||lvl;
+    const pred = sc.pred ? sc.pred+'分' : '-';
+    const fee = sc.fee ? sc.fee+'元/年' : '-';
+    const subject = sc.subject || '-';
+
+    // Score table
+    function v25(v){ return v!==null && v!==undefined ? sc.scores['25'] : null; }
+    function rankFmt(v){ return v ? v.toLocaleString() : '<span class="muted">-</span>'; }
+    function enrollFmt(v){ return v!==null&&v!==undefined ? v : '<span class="muted">-</span>'; }
+
+    const eq25 = sc.eq_scores ? sc.eq_scores['25'] : null;
+    const eq24 = sc.eq_scores ? sc.eq_scores['24'] : null;
+    const eq23 = sc.eq_scores ? sc.eq_scores['23'] : null;
+    const s25 = sc.score_points['25'] ? sc.score_points['25']+'分' : '-';
+    const s24 = sc.score_points['24'] ? sc.score_points['24']+'分' : '-';
+    const s23 = sc.score_points['23'] ? sc.score_points['23']+'分' : '-';
+    const r25 = sc.scores['25'];
+    const r24 = sc.scores['24'];
+    const r23 = sc.scores['23'];
+    const e25 = sc.enroll['25'];
+    const e24 = sc.enroll['24'];
+    const e23 = sc.enroll['23'];
+
+    const isNew = sc.is_new || (!sc.scores['25']&&!sc.scores['24']&&!sc.scores['23']);
+    const newTag = isNew ? '<span class="tag tag-new">🆕 新设专业</span>' : '';
+
+    html += `<div class="school-card">
+      <div class="level-badge" style="background:${lc}">${ll}</div>
+      <div class="sc-name">${sc.name} <span class="sc-code">${sc.code}</span></div>
+      <div class="sc-tags">
+        <span class="tag tag-plan">📋 计划${sc.plan}人</span>
+        <span class="tag tag-pred">🎯 预测${pred}</span>
+        <span class="tag tag-fee">💰 ${fee}</span>
+        <span class="tag tag-subject">📌 ${subject}</span>
+        ${newTag}
+      </div>
+      <table class="sc-table">
+        <tr>
+          <th></th><th>等位分</th><th>投档分</th><th>最低位次</th><th>录取人数</th>
+        </tr>
+        <tr>
+          <td><b>2025年</b></td>
+          <td>${eq25 !== null ? eq25+'分' : '<span class="muted">-</span>'}</td>
+          <td>${s25}</td>
+          <td>${r25 ? r25.toLocaleString() : '<span class="muted">-</span>'}</td>
+          <td>${e25!==null&&e25!==undefined ? e25 : '<span class="muted">-</span>'}</td>
+        </tr>
+        <tr>
+          <td><b>2024年</b></td>
+          <td>${eq24 !== null ? eq24+'分' : '<span class="muted">-</span>'}</td>
+          <td>${s24}</td>
+          <td>${r24 ? r24.toLocaleString() : '<span class="muted">-</span>'}</td>
+          <td>${e24!==null&&e24!==undefined ? e24 : '<span class="muted">-</span>'}</td>
+        </tr>
+        <tr>
+          <td><b>2023年</b></td>
+          <td>${eq23 !== null ? eq23+'分' : '<span class="muted">-</span>'}</td>
+          <td>${s23}</td>
+          <td>${r23 ? r23.toLocaleString() : '<span class="muted">-</span>'}</td>
+          <td>${e23!==null&&e23!==undefined ? e23 : '<span class="muted">-</span>'}</td>
+        </tr>
+      </table>
+      ${sc.note ? `<div class="sc-note">📎 ${sc.note}</div>` : ''}
+    </div>`;
+  });
+  document.getElementById('schoolList').innerHTML = html;
+}
+</script>
+</body>
+</html>
